@@ -1,8 +1,10 @@
 import { mockEntries } from "./mock-data";
+import { useState } from "react";
 
 const actionIcons = { PASSED: "✓", BLOCKED: "▸", SANITISED: "⚠" };
 
 const FeedEntry = ({ entry }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const key = entry.action.toLowerCase();
 
   return (
@@ -17,14 +19,21 @@ const FeedEntry = ({ entry }) => {
               <span className="pg-attack-type pg-mono">{entry.attackType}</span>
             )}
           </div>
-          <p className="pg-entry-prompt pg-mono">{entry.prompt}</p>
+          <p 
+            className={`pg-entry-prompt pg-mono ${isExpanded ? 'pg-entry-prompt--expanded' : ''}`}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {entry.prompt}
+          </p>
           {entry.severity && (
             <div className="pg-entry-severity">
               <span className={`pg-severity-label pg-severity--${entry.severity.toLowerCase()} pg-mono`}>
                 {entry.severity}
               </span>
               {entry.detail && (
-                <span className="pg-entry-detail pg-mono">{entry.detail}</span>
+                <span className={`pg-entry-detail pg-mono ${isExpanded ? 'pg-entry-detail--expanded' : ''}`}>
+                  {entry.detail}
+                </span>
               )}
             </div>
           )}
