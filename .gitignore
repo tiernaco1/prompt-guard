@@ -1,0 +1,34 @@
+# Environment — never commit secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Eval results (large files)
+eval/results/*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+.claude/
+
+# Docker
+*.log
