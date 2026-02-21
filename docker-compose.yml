@@ -20,6 +20,28 @@ services:
       retries: 5
       start_period: 15s
 
+  demo-backend:
+    build:
+      context: ./demo-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - PROXY_URL=http://backend:8000
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
   frontend:
     build:
       context: ./frontend
@@ -30,7 +52,8 @@ services:
       - ./frontend/src:/app/src  # hot-reload: changes reflect instantly
     environment:
       - VITE_API_URL=http://localhost:8000
+      - VITE_DEMO_BACKEND_URL=http://localhost:8001
     depends_on:
-      backend:
+      demo-backend:
         condition: service_healthy
     restart: unless-stopped

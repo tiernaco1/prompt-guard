@@ -1,10 +1,10 @@
-// API service for PromptGuard backend
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// API service for PromptGuard demo backend
+const DEMO_BACKEND_URL = import.meta.env.VITE_DEMO_BACKEND_URL || 'http://localhost:8001';
 
-export const checkPrompt = async (prompt) => {
-  console.log('🔍 Calling backend API:', API_URL);
+export const sendChat = async (prompt) => {
+  console.log('🔍 Calling demo backend:', DEMO_BACKEND_URL);
   try {
-    const response = await fetch(`${API_URL}/check`, {
+    const response = await fetch(`${DEMO_BACKEND_URL}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13,16 +13,15 @@ export const checkPrompt = async (prompt) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Backend responded with status: ${response.status}`);
+      throw new Error(`Demo backend responded with status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('✅ Backend response:', data);
+    console.log('✅ Demo backend response:', data);
     return data;
   } catch (error) {
-    console.error('❌ Backend connection failed:', error.message);
+    console.error('❌ Demo backend connection failed:', error.message);
     console.log('⚠️ Using mock response instead');
-    // Return mock data if backend is unavailable
     return getMockResponse(prompt);
   }
 };
@@ -57,4 +56,4 @@ const getMockResponse = (prompt) => {
   };
 };
 
-export default { checkPrompt };
+export default { sendChat };
