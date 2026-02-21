@@ -44,22 +44,21 @@ const ThreatLevelBar = () => {
   );
 };
 
-const Widget = () => {
+const Widget = ({ isOpen, setIsOpen }) => {
   const [activeTab, setActiveTab] = useState("LIVE FEED");
-  const [open, setOpen] = useState(false);
 
   return (
     <>
       <button
         className="pg-toggle-btn"
-        onClick={() => setOpen(!open)}
+        onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle PromptGuard"
       >
         <Shield size={20} />
       </button>
 
-      <div className={`pg-widget ${open ? "pg-widget--open" : ""}`}>
-        <WidgetHeader onClose={() => setOpen(false)} />
+      <div className={`pg-widget ${isOpen ? "pg-widget--open" : ""}`}>
+        <WidgetHeader onClose={() => setIsOpen(false)} />
         <Stats />
         <ThreatLevelBar />
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />

@@ -84,9 +84,9 @@ function ChatBox() {
   );
 }
 
-const DemoApp = () => {
+const DemoApp = ({ isWidgetOpen }) => {
   return (
-    <div className="demo-app">
+    <div className={`demo-app ${isWidgetOpen ? 'demo-app--shifted' : ''}`}>
       <div className="demo-header">
         <h1>Hack Attack Business</h1>
         <h2>Curated for all your business needs</h2>
