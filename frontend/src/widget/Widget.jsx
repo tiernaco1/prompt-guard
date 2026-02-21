@@ -5,7 +5,6 @@ import Tabs from "./Tabs";
 import Feed from "./Feed";
 import AttackDistribution from "./AttackDistribution";
 import { Shield } from "lucide-react";
-import { mockEntries } from "./mock-data";
 import "./widget.css";
 
 const ThreatLevelBar = ({ stats }) => {
@@ -62,9 +61,6 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
     return { processed, blocked, detectRate };
   }, [analysisHistory]);
 
-  // Use mock entries if no real data yet
-  const entries = analysisHistory.length > 0 ? analysisHistory : mockEntries;
-
   return (
     <>
       <button
@@ -81,7 +77,13 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
         <ThreatLevelBar stats={stats} />
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === "LIVE FEED" && <Feed entries={entries} />}
+        {activeTab === "LIVE FEED" && (
+          analysisHistory.length > 0 ? (
+            <Feed entries={analysisHistory} />
+          ) : (
+            <div className="pg-placeholder pg-mono">No prompts analyzed yet. Send a message to start monitoring.</div>
+          )
+        )}
         {activeTab === "ANALYTICS" && (
           <div className="pg-placeholder pg-mono">Analytics dashboard coming soon</div>
         )}

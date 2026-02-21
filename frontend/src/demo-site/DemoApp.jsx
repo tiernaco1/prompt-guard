@@ -41,6 +41,12 @@ function ChatBox({ onPromptCheck }) {
         botResponse = "⚠️ This message has been blocked by PromptGuard for security reasons.";
       } else if (result.action === 'sanitize') {
         botResponse = `✓ Your message was processed (sanitized for safety): "${text}"`;
+      } else if (result.action === 'allow') {
+        if (result.analysis && result.analysis.explanation) {
+          botResponse = `✅ Prompt processed successfully!\nClaude says: ${result.analysis.explanation}`;
+        } else {
+          botResponse = `✅ Prompt processed successfully! You said: "${text}"`;
+        }
       } else {
         botResponse = `Thanks for your message! You said: "${text}"`;
       }
