@@ -1,20 +1,18 @@
-function Stats({ stats }) {
-  return (
-    <div className="widget-stats">
-      <div className="stat">
-        <div className="stat-value">{stats.processed}</div>
-        <div className="stat-label">PROCESSED</div>
-      </div>
-      <div className="stat">
-        <div className="stat-value blocked">{stats.blocked}</div>
-        <div className="stat-label">BLOCKED</div>
-      </div>
-      <div className="stat">
-        <div className="stat-value detect">{stats.detectRate}%</div>
-        <div className="stat-label">DETECT RATE</div>
-      </div>
-    </div>
-  )
-}
+import { sessionStats } from "./mock-data";
 
-export default Stats
+const StatCard = ({ value, label, colorClass }) => (
+  <div className="pg-stat-card">
+    <div className={`pg-stat-value pg-mono ${colorClass}`}>{value}</div>
+    <div className="pg-stat-label pg-mono">{label}</div>
+  </div>
+);
+
+const Stats = () => (
+  <div className="pg-stats">
+    <StatCard value={sessionStats.processed} label="PROCESSED" colorClass="pg-stat-value--accent" />
+    <StatCard value={sessionStats.blocked} label="BLOCKED" colorClass="pg-stat-value--blocked" />
+    <StatCard value={`${sessionStats.detectRate}%`} label="DETECT RATE" colorClass="pg-stat-value--passed" />
+  </div>
+);
+
+export default Stats;

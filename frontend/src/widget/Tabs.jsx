@@ -1,28 +1,17 @@
-import { useState } from 'react'
+const tabList = ["LIVE FEED", "ANALYTICS", "REPORT"];
 
-function Tabs({ tabs = ['LIVE FEED', 'ANALYTICS', 'REPORT'], onTabChange }) {
-  const [activeTab, setActiveTab] = useState(0)
+const Tabs = ({ activeTab, onTabChange }) => (
+  <div className="pg-tabs">
+    {tabList.map((tab) => (
+      <button
+        key={tab}
+        onClick={() => onTabChange(tab)}
+        className={`pg-tab pg-mono${activeTab === tab ? " pg-tab--active" : ""}`}
+      >
+        {tab}
+      </button>
+    ))}
+  </div>
+);
 
-  const handleTabClick = (index) => {
-    setActiveTab(index)
-    if (onTabChange) {
-      onTabChange(tabs[index])
-    }
-  }
-
-  return (
-    <div className="widget-tabs">
-      {tabs.map((tab, index) => (
-        <button
-          key={index}
-          className={`tab ${activeTab === index ? 'active' : ''}`}
-          onClick={() => handleTabClick(index)}
-        >
-          {tab}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-export default Tabs
+export default Tabs;

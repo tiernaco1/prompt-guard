@@ -1,48 +1,54 @@
-import { useState } from 'react'
-import './Widget.css'
-import { threats, stats, attackDistribution } from './mock-data'
-import WidgetHeader from './WidgetHeader'
-import Stats from './Stats'
-import Tabs from './Tabs'
-import Feed from './Feed'
-import AttackDistribution from './AttackDistribution'
+import { useState } from "react";
+import WidgetHeader from "./WidgetHeader";
+import Stats from "./Stats";
+import Tabs from "./Tabs";
+import Feed from "./Feed";
+import AttackDistribution from "./AttackDistribution";
+import { Shield } from "lucide-react";
+import "./widget.css";
 
-function Widget() {
-  const [isOpen, setIsOpen] = useState(false)
+const ThreatLevelBar = () => (
+  <div className="pg-threat">
+    <div className="pg-threat-header pg-mono">
+      <span>SESSION THREAT LEVEL</span>
+      <span className="pg-threat-level">LOW</span>
+    </div>
+    <div className="pg-threat-track">
+      <div className="pg-threat-fill" />
+    </div>
+  </div>
+);
 
-  const handleTabChange = (tab) => {
-    console.log('Active tab:', tab)
-  }
+const Widget = () => {
+  const [activeTab, setActiveTab] = useState("LIVE FEED");
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Floating icon button - always visible */}
-      <button 
-        className="widget-icon-btn" 
-        onClick={() => setIsOpen(!isOpen)}
-        title="PromptGuard Security"
+      <button
+        className="pg-toggle-btn"
+        onClick={() => setOpen(!open)}
+        aria-label="Toggle PromptGuard"
       >
-        🛡️
+        <Shield size={20} />
       </button>
 
-      {/* Widget panel - slides in when open */}
-      {isOpen && (
-        <div className="widget-container">
-          <div className="widget-close-header">
-            <button className="close-btn" onClick={() => setIsOpen(false)}>
-              ✕
-            </button>
-          </div>
-          <WidgetHeader />
-          <Stats stats={stats}/>
-          <Tabs onTabChange={handleTabChange} />
-          <Feed threats={threats} />
-          <AttackDistribution attacks={attackDistribution} />
-          <button className="generate-report">📊 Generate Report</button>
-        </div>
-      )}
-    </>
-  )
-}
+      <div className={`pg-widget ${open ? "pg-widget--open" : ""}`}>
+        <WidgetHeader onClose={() => setOpen(false)} />
+        <Stats />
+        <ThreatLevelBar />
+        <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-export default Widget
+        {activeTab === "LIVE FEED" && <Feed />}
+        {activeTab === "ANALYTICS" && (
+          <div className="pg-placeholder pg-mono">Analytics dashboard coming soon</div>
+        )}
+        {activeTab === "REPORT" && (
+          <div className="pg-placeholder pg-mono">Threat report generation coming soon</div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Widget;
