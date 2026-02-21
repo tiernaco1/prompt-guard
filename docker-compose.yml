@@ -1,14 +1,14 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: ./proxy
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     env_file:
       - .env
     volumes:
-      - ./backend:/app          # hot-reload: changes reflect instantly
+      - ./proxy:/app            # hot-reload: changes reflect instantly
       - ./data:/data            # share dataset with backend if needed
     environment:
       - PYTHONUNBUFFERED=1
