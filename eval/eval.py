@@ -4,7 +4,7 @@ PromptGuard Evaluation Runner
 
 Default behaviour:
   - Tests attack_testing.jsonl + benign_testing.jsonl
-  - Uses /analyse endpoint
+  - Uses /check endpoint
   - Saves JSONL + CSV results
 """
 
@@ -237,7 +237,7 @@ def run(base_url: str, endpoint: str, inputs: List[str], timeout: float):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://localhost:8000")
-    parser.add_argument("--endpoint", default="analyse", choices=["analyse", "chat"])
+    parser.add_argument("--endpoint", default="check", choices=["check", "chat"])
     parser.add_argument("--timeout", type=float, default=20.0)
     parser.add_argument(
         "--inputs",
