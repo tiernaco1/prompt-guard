@@ -9,14 +9,14 @@ User Input
     │
     ▼
 ┌──────────────────────────────┐
-│  TIER 1: Crusoe / Llama 3   │  <500ms — classifies every prompt
+│  TIER 1: Crusoe / Qwen3-235B │  <500ms — classifies every prompt
 │  SAFE / SUSPICIOUS / ATTACK  │
 └──────────┬───────────────────┘
            │ suspicious / obvious attack
            ▼
 ┌──────────────────────────────┐
-│  TIER 2: Claude (Sonnet)    │  deep analysis — JSON verdict
-│  BLOCK / SANITISE / ALLOW   │  attack_type, severity, explanation
+│  TIER 2: Claude Haiku        │  deep analysis — JSON verdict
+│  BLOCK / SANITISE / ALLOW    │  attack_type, confidence, reason
 └──────────────────────────────┘
 ```
 
@@ -25,119 +25,129 @@ User Input
 ## Quick Start (Docker — recommended)
 
 ```bash
-# 1. Fill in your API keys
-# edit .env with your CRUSOE_API_KEY and CLAUDE_API_KEY
+# 1. Add your API keys to .env
+#    CRUSOE_API_KEY=...
+#    CLAUDE_API_KEY=...
 
 # 2. Start everything
-docker compose up
+docker compose up --build
 
 # Frontend: http://localhost:5173
 # Backend:  http://localhost:8000
 # API docs: http://localhost:8000/docs
 ```
 
-## Quick Start (local)
+The backend healthcheck runs automatically — the frontend container will start once the backend is healthy (~15s).
+
+## Quick Start (local, no Docker)
 
 ```bash
-# Backend
-cd backend
+# Terminal 1 — Backend
+cd proxy
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn api:app --reload
 
-# Frontend (separate terminal)
+# Terminal 2 — Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
-Or use `./start.sh` to launch both together.
-
 ## Project Structure
 
 ```
-promptguard/
-├── backend/
-│   ├── main.py          # FastAPI endpoints
-│   ├── firewall.py      # Two-tier routing logic
-│   ├── crusoe_client.py # Tier 1 — Crusoe/Llama wrapper
-│   ├── claude_client.py # Tier 2 — Claude wrapper
-│   ├── state.py         # Session state & adaptive logic
-│   ├── prompts.py       # All prompt templates (Person B owns this)
-│   ├── models.py        # Pydantic schemas
-│   ├── report.py        # Threat report generator
-│   └── config.py        # Config from env vars
-├── frontend/
+prompt-guard/
+├── proxy/                        # FastAPI backend
+│   ├── api.py                    # /check and /health endpoints
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── detection/
+│       └── crusoe_tier.py        # Two-tier firewall logic
+├── frontend/                     # React + Vite UI
+│   ├── Dockerfile
+│   ├── vite.config.js
 │   └── src/
-│       ├── App.jsx              # Root layout
-│       ├── components/
-│       │   ├── ChatPanel.jsx    # Chat interface
-│       │   ├── ChatMessage.jsx  # Message card
-│       │   ├── Dashboard.jsx    # Right panel
-│       │   ├── StatsBar.jsx     # Top stats
-│       │   ├── AttackChart.jsx  # Pie chart
-│       │   ├── BlockFeed.jsx    # Recent blocks
-│       │   └── ReportModal.jsx  # Threat report overlay
-│       ├── api.js       # Backend API calls
-│       ├── mockApi.js   # Mock responses for UI dev
-│       └── constants.js # Colours, labels
+│       ├── App.jsx
+│       └── widget/               # Firewall widget components
 ├── data/
-│   ├── labelled/        # Curated test cases
-│   └── synthetic/       # Claude-generated attacks
+│   ├── prompts/                  # Tier 1 & Tier 2 prompt templates
+│   ├── labelled/                 # HuggingFace labelled datasets
+│   └── spot_test.py              # Evaluation harness
 ├── eval/
-│   ├── eval.py               # Automated evaluation
-│   └── generate_synthetic.py # Synthetic attack generator
-└── docker-compose.yml
+│   ├── attacks_testing.jsonl     # Hand-written attack test cases (60)
+│   └── benign_testing.jsonl      # Hand-written benign test cases (33)
+├── docker-compose.yml
+└── .env                          # API keys (not committed)
 ```
 
 ## API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/analyse` | Run prompt through firewall |
-| POST | `/chat` | Chat (firewall + LLM reply) |
-| GET | `/session/stats` | Dashboard statistics |
+| POST | `/check` | Run prompt through firewall — returns `action`, `tier`, `analysis` |
+| GET | `/health` | Health check — returns `{"status": "ok"}` |
+| GET | `/docs` | Auto-generated Swagger UI |
+ GET | `/session/stats` | Dashboard statistics |
 | GET | `/session/history` | Prompt history |
 | POST | `/report` | Generate threat report |
 | POST | `/session/reset` | Reset session |
 | GET | `/health` | Health check |
 
-## Generating Synthetic Attacks (Person B)
+### POST /check
 
-```bash
-cd promptguard
-python eval/generate_synthetic.py --per-category 15
-# Outputs to data/synthetic/generated.jsonl
+Request:
+```json
+{ "prompt": "Ignore all previous instructions..." }
+```
+
+Response (Tier 1 SAFE — fast path):
+```json
+{ "action": "allow", "tier": 1 }
+```
+
+Response (Tier 2 — attack detected):
+```json
+{
+  "action": "block",
+  "tier": 2,
+  "analysis": {
+    "verdict": "BLOCK",
+    "attack_type": "direct_jailbreak",
+    "confidence": 0.97,
+    "reason": "Explicit instruction override attempt"
+  }
+}
 ```
 
 ## Running Evaluation
 
 ```bash
-# Ensure backend is running first
-python eval/eval.py
-# Results saved to eval/results/<timestamp>.json
+# Quick run — 93 hand-written prompts, no extra API spend
+python data/spot_test.py --quick
+
+# Full run — adds English-only HuggingFace samples (~113 prompts)
+python data/spot_test.py
+
+# Test Tier 2 (Claude) prompt in isolation
+python data/spot_test.py --quick --tier2-only
+
+# Latency check — times 20 Tier 1 calls vs <500ms target
+python data/latency_check.py
 ```
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `CRUSOE_API_KEY` | Crusoe Inference API key |
+| `CRUSOE_API_KEY` | Crusoe hackathon API key |
 | `CLAUDE_API_KEY` | Anthropic API key |
-| `CRUSOE_MODEL` | Llama model ID (default: Meta-Llama-3.1-8B-Instruct) |
-| `CLAUDE_MODEL` | Claude model ID (default: claude-sonnet-4-6) |
-| `ADAPTIVE_THRESHOLD` | Attack count before adaptive tightening (default: 3) |
-
-## Using Mock API (Frontend dev without backend)
-
-Import from `mockApi.js` instead of `api.js` in the components — pre-wired mock responses let Person C build UI independently before the backend is ready.
 
 ## Challenge Alignment
 
 | Prize | How |
 |-------|-----|
 | Security Track | OWASP LLM01 — the #1 AI-enabled threat |
-| Best Use of Claude | Deep analysis engine + threat report generation |
-| Best Use of Crusoe | High-throughput Tier 1 triage at <500ms |
-| Best Use of Data | 4+ sources, 6-category taxonomy, synthetic generation |
-| Best Adaptable Agent | Session-level adaptation + confidence recalibration |
-| Best Consulting Agent | Consulting-grade threat report on demand |
+| Best Use of Claude | Deep analysis engine + structured JSON verdicts |
+| Best Use of Crusoe | High-throughput Tier 1 triage at <500ms using Qwen3-235B |
+| Best Use of Data | 4+ sources, 6-category taxonomy, 98% accuracy |
+| Best Adaptable Agent | Session-level attack pattern tracking |
