@@ -1,0 +1,69 @@
+import json
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+from openai import OpenAI
+import anthropic
+
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+crusoe = OpenAI(
+    base_url="https://inference.crusoecloud.com/v1",
+    api_key=os.environ["CRUSOE_KEY"],
+)
+claude = anthropic.Anthropic(api_key=os.environ["CLAUDE_KEY"])
+
+
+class PromptFirewall:
+    def __init__(self):
+        self.session_history = []
+        self.attack_patterns = {}  # tracks frequency of attack types
+        self.blocked_features = []  # features from confirmed attacks
+
+    def tier1_classify(self, prompt: str) -> str:
+        """Crusoe — fast classification, <500ms"""
+        _prompt_path = Path(__file__).parent.parent.parent / "prompt-guard" / "data" / "prompts" / "tier1_v1.txt"
+        content = _prompt_path.read_text().format(prompt=prompt)
+        response = crusoe.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            messages=[{"role": "user", "content": content}],
+            max_tokens=30
+        )
+        return response.choices[0].message.content
+
+    def tier2_analyse(self, prompt: str) -> dict:
+        """Claude — deep analysis of flagged prompts"""
+        _prompt_path = Path(__file__).parent.parent.parent / "prompt-guard" / "data" / "prompts" / "tier2_v1.txt"
+        content = _prompt_path.read_text().format(
+            total_processed=len(self.session_history),
+            attack_patterns=self.attack_patterns,
+            recent_history=self.session_history[-5:],
+            prompt=prompt,
+        )
+        response = claude.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=500,
+            messages=[{"role": "user", "content": content}]
+        )
+        return json.loads(response.content[0].text)
+
+    def process(self, prompt: str) -> dict:
+        """Main pipeline — every prompt goes through here"""
+        # Tier 1: Fast classification
+        tier1_result = self.tier1_classify(prompt)
+
+        if "SAFE" in tier1_result:
+            self.session_history.append({"prompt": prompt, "result": "safe"})
+            return {"action": "allow", "tier": 1}
+
+        # Tier 2: Deep analysis for suspicious/obvious attacks
+        analysis = self.tier2_analyse(prompt)
+
+        # Adapt: update session pattern tracking
+        if analysis["verdict"] == "BLOCK":
+            attack_type = analysis["attack_type"]
+            self.attack_patterns[attack_type] = self.attack_patterns.get(attack_type, 0) + 1
+
+        self.session_history.append({"prompt": prompt, "result": analysis})
+        return {"action": analysis["verdict"].lower(), "tier": 2, "analysis": analysis}
