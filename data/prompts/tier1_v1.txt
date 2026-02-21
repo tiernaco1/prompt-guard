@@ -1,0 +1,3 @@
+Classify as SAFE, SUSPICIOUS, or OBVIOUS_ATTACK with 5-word reason.
+
+Input: "{prompt}"
