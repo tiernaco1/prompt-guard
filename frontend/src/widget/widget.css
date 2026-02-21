@@ -1,0 +1,394 @@
+/* Floating icon button */
+.widget-icon-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 3px solid #00ff88;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-border 2s infinite;
+}
+
+.widget-icon-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.5);
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: #00ff88;
+  }
+  50% {
+    border-color: #667eea;
+  }
+}
+
+/* Widget panel */
+.widget-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 480px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a1d2e 0%, #0f1117 100%);
+  color: #fff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  z-index: 1000;
+  font-family: 'Courier New', monospace;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.widget-close-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 20px 0;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.widget-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.shield-icon {
+  font-size: 24px;
+}
+
+.highlight {
+  color: #00ff88;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.status-badge.active {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+.widget-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.stat-value.blocked {
+  color: #ff3366;
+}
+
+.stat-value.detect {
+  color: #ffd700;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.threat-level {
+  padding: 20px;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.threat-label {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.threat-bar {
+  height: 8px;
+  background: #2a2d3a;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.threat-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88 0%, #ffd700 50%, #ff3366 100%);
+  width: 30%;
+  transition: width 0.3s ease;
+}
+
+.threat-text {
+  text-align: right;
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.widget-tabs {
+  display: flex;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.tab {
+  flex: 1;
+  padding: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab.active {
+  color: #00ff88;
+  border-bottom: 2px solid #00ff88;
+}
+
+.live-feed {
+  padding: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.threat-item {
+  background: #1e2230;
+  border-left: 3px solid #00ff88;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.threat-item.blocked {
+  border-left-color: #ff3366;
+  background: rgba(255, 51, 102, 0.1);
+}
+
+.threat-item.passed {
+  border-left-color: #00ff88;
+}
+
+.threat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.threat-header .status-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.status-badge.passed {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.status-badge.blocked {
+  background: rgba(255, 51, 102, 0.2);
+  color: #ff3366;
+}
+
+.threat-type {
+  color: #ff3366;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.threat-meta {
+  display: flex;
+  gap: 8px;
+  color: #888;
+  font-size: 10px;
+}
+
+.tier {
+  color: #4a9eff;
+}
+
+.threat-message {
+  color: #ddd;
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.severity {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.severity.critical {
+  background: rgba(255, 51, 102, 0.3);
+  color: #ff3366;
+}
+
+.threat-description {
+  color: #888;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 8px 0;
+}
+
+.threat-time {
+  color: #666;
+  font-size: 10px;
+  text-align: right;
+}
+
+.attack-distribution {
+  padding: 20px;
+  border-top: 1px solid #2a2d3a;
+}
+
+.distribution-title {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.distribution-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.attack-type {
+  width: 120px;
+  color: #ddd;
+}
+
+.distribution-bar {
+  flex: 1;
+  height: 20px;
+  background: #2a2d3a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.attack-count {
+  width: 30px;
+  text-align: right;
+  color: #888;
+}
+
+.distribution-footer {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  font-size: 11px;
+  color: #888;
+}
+
+.generate-report {
+  margin: 20px;
+  width: calc(100% - 40px);
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.generate-report:hover {
+  transform: translateY(-2px);
+}
+
+
+
+.widget-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.widget-container::-webkit-scrollbar-track {
+  background: #1a1d2e;
+}
+
+.widget-container::-webkit-scrollbar-thumb {
+  background: #2a2d3a;
+  border-radius: 4px;
+}
+
+.widget-container::-webkit-scrollbar-thumb:hover {
+  background: #3a3d4a;
+}
