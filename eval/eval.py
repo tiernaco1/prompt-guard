@@ -242,7 +242,7 @@ def main():
     parser.add_argument(
         "--inputs",
         nargs="+",
-        default=["attack_testing.jsonl", "benign_testing.jsonl"],
+        default=["eval/attacks_testing.jsonl", "eval/benign_testing.jsonl"],
     )
     args = parser.parse_args()
 
