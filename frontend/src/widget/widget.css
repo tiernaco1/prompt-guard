@@ -380,6 +380,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 4px;
+}
+
+.pg-entry-prompt:hover {
+  color: var(--pg-fg);
+  background-color: hsla(200, 90%, 55%, 0.1);
+}
+
+.pg-entry-prompt--expanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .pg-entry-severity {
@@ -406,6 +422,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.pg-entry-detail--expanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .pg-entry-meta {
