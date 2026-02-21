@@ -6,7 +6,6 @@ import Feed from "./Feed";
 import AttackDistribution from "./AttackDistribution";
 import { Shield } from "lucide-react";
 import { sessionStats } from "./mock-data";
-import { sessionStats } from "./mock-data";
 import "./widget.css";
 
 const ThreatLevelBar = () => {
