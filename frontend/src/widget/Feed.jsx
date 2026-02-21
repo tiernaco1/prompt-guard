@@ -1,6 +1,10 @@
+import { useState } from "react";
+
 const actionIcons = { PASSED: "✓", ALLOW: "✓", BLOCKED: "▸", BLOCK: "▸", SANITISED: "⚠", SANITIZE: "⚠" };
 
 const FeedEntry = ({ entry }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   // Normalize action to uppercase and handle different naming conventions
   const action = entry.action.toUpperCase();
   const normalizedAction = action === 'ALLOW' ? 'PASSED' : action === 'SANITIZE' ? 'SANITISED' : action;
