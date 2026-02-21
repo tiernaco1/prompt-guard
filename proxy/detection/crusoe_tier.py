@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -28,7 +29,8 @@ class PromptFirewall:
         response = crusoe.chat.completions.create(
             model="NVFP4/Qwen3-235B-A22B-Instruct-2507-FP4",
             messages=[{"role": "user", "content": content}],
-            max_tokens=30
+            max_tokens=60,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         return response.choices[0].message.content
 
@@ -42,11 +44,15 @@ class PromptFirewall:
             prompt=prompt,
         )
         response = claude.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=500,
+            model="claude-haiku-4-5-20251001",
+            max_tokens=350,
             messages=[{"role": "user", "content": content}]
         )
-        return json.loads(response.content[0].text)
+        raw = response.content[0].text
+        match = re.search(r'\{[\s\S]*\}', raw)
+        if not match:
+            raise ValueError(f"No JSON in Claude response: {raw[:200]}")
+        return json.loads(match.group())
 
     def process(self, prompt: str) -> dict:
         """Main pipeline — every prompt goes through here"""
