@@ -9,8 +9,10 @@ Sources:
   - data/labelled/benign.jsonl   (HuggingFace fka/awesome-chatgpt-prompts, sampled)
 
 Run from project root:
-  python data/spot_test.py              # full pipeline (Tier 1 Crusoe + Tier 2 Claude)
+  python data/spot_test.py              # full pipeline (Tier 1 Crusoe + Tier 2 Claude), all sources
+  python data/spot_test.py --quick      # eval/ files only — faster, cheaper, use for iteration
   python data/spot_test.py --tier2-only # skip Tier 1, test Claude prompt directly
+  Flags can be combined: python data/spot_test.py --quick --tier2-only
 """
 
 import json
@@ -24,6 +26,13 @@ sys.path.insert(0, str(PROJECT_ROOT / "proxy"))
 from detection.crusoe_tier import PromptFirewall
 
 TIER2_ONLY = "--tier2-only" in sys.argv
+QUICK      = "--quick" in sys.argv
+
+
+def is_english(text: str) -> bool:
+    """Reject prompts where >15% of characters are non-ASCII (filters German etc.)"""
+    non_ascii = sum(1 for c in text if ord(c) > 127)
+    return non_ascii / max(len(text), 1) < 0.15
 
 
 # ── Data loading ─────────────────────────────────────────────────────────────
@@ -185,32 +194,42 @@ def print_summary(results: list[dict]):
 def main():
     random.seed(42)  # reproducible sampling
 
-    # Hand-written test cases
+    # Hand-written test cases (always included)
     eval_attacks = load_jsonl(PROJECT_ROOT / "eval" / "attacks_testing.jsonl")
     eval_benign  = load_jsonl(PROJECT_ROOT / "eval" / "benign_testing.jsonl")
 
-    # HuggingFace downloaded data (sampled to keep cost reasonable)
-    hf_attacks = load_jsonl(PROJECT_ROOT / "data" / "labelled" / "attacks.jsonl")
-    hf_benign  = load_jsonl(PROJECT_ROOT / "data" / "labelled" / "benign.jsonl")
+    if QUICK:
+        # --quick: eval/ files only — 93 prompts, no extra API spend
+        all_cases = eval_attacks + eval_benign
+        hf_atk_n, hf_ben_n = 0, 0
+    else:
+        # Full run: add English-only HuggingFace samples
+        hf_attacks = load_jsonl(PROJECT_ROOT / "data" / "labelled" / "attacks.jsonl")
+        hf_benign  = load_jsonl(PROJECT_ROOT / "data" / "labelled" / "benign.jsonl")
+        hf_attacks_en = [e for e in hf_attacks if is_english(e["prompt"])]
+        hf_benign_en  = [e for e in hf_benign  if is_english(e["prompt"])]
+        hf_atk_sample = random.sample(hf_attacks_en, min(20, len(hf_attacks_en)))
+        hf_ben_sample  = random.sample(hf_benign_en,  min(20, len(hf_benign_en)))
+        hf_atk_n, hf_ben_n = len(hf_atk_sample), len(hf_ben_sample)
+        all_cases = eval_attacks + eval_benign + hf_atk_sample + hf_ben_sample
 
-    hf_attack_sample = random.sample(hf_attacks, min(20, len(hf_attacks)))
-    hf_benign_sample = random.sample(hf_benign,  min(20, len(hf_benign)))
-
-    all_cases = eval_attacks + eval_benign + hf_attack_sample + hf_benign_sample
-
-    print(f"\nPromptGuard — Spot Test")
-    print(f"{'─' * 60}")
+    print("\nPromptGuard — Spot Test")
+    print("─" * 60)
     print(f"  Hand-written attacks : {len(eval_attacks)}")
     print(f"  Hand-written benign  : {len(eval_benign)}")
-    print(f"  HuggingFace attacks  : {len(hf_attack_sample)}  (sampled from {len(hf_attacks)})")
-    print(f"  HuggingFace benign   : {len(hf_benign_sample)}  (sampled from {len(hf_benign)})")
-    print(f"  ─────────────────────")
+    if not QUICK:
+        print(f"  HuggingFace attacks  : {hf_atk_n}  (English only)")
+        print(f"  HuggingFace benign   : {hf_ben_n}  (English only)")
+    print(f"  {'─' * 21}")
     print(f"  Total                : {len(all_cases)}")
-    print(f"{'─' * 60}")
+    print("─" * 60)
+
+    mode = []
+    if QUICK:
+        mode.append("--quick")
     if TIER2_ONLY:
-        print(f"\nMode: --tier2-only  (Crusoe skipped, all prompts go straight to Claude)\n")
-    else:
-        print(f"\nMode: full pipeline  (Tier 1 Crusoe → Tier 2 Claude if flagged)\n")
+        mode.append("--tier2-only")
+    print(f"\nMode: {' '.join(mode) if mode else 'full pipeline'}\n")
 
     firewall = PromptFirewall()
     results = run_tests(all_cases, firewall, tier2_only=TIER2_ONLY)
