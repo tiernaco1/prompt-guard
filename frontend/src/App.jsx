@@ -2,14 +2,54 @@ import { useState } from 'react'
 import './App.css'
 import DemoApp from './demo-site/DemoApp'
 import Widget from './widget/Widget'
+import { checkPrompt } from './services/api'
 
 function App() {
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
+  const [latestAnalysis, setLatestAnalysis] = useState(null);
+  const [analysisHistory, setAnalysisHistory] = useState([]);
+
+  const handlePromptCheck = async (prompt) => {
+    try {
+      const result = await checkPrompt(prompt);
+      
+      // Create analysis entry
+      const entry = {
+        id: crypto.randomUUID(),
+        prompt: prompt,
+        action: result.action.toUpperCase(),
+        tier: result.tier === 1 ? "T1" : "T2",
+        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        responseTime: result.tier === 1 ? `${Math.floor(Math.random() * 200 + 200)}ms` : `${(Math.random() * 1.5 + 1.5).toFixed(1)}s`,
+        ...(result.analysis && {
+          attackType: result.analysis.attack_type,
+          severity: result.analysis.severity,
+          detail: result.analysis.explanation
+        })
+      };
+
+      setLatestAnalysis(entry);
+      setAnalysisHistory(prev => [entry, ...prev]);
+      
+      return result;
+    } catch (error) {
+      console.error('Error in prompt check:', error);
+      throw error;
+    }
+  };
 
   return (
     <>
-      <DemoApp isWidgetOpen={isWidgetOpen} />
-      <Widget isOpen={isWidgetOpen} setIsOpen={setIsWidgetOpen} />
+      <DemoApp 
+        isWidgetOpen={isWidgetOpen} 
+        onPromptCheck={handlePromptCheck}
+      />
+      <Widget 
+        isOpen={isWidgetOpen} 
+        setIsOpen={setIsWidgetOpen}
+        latestAnalysis={latestAnalysis}
+        analysisHistory={analysisHistory}
+      />
     </>
   )
 }

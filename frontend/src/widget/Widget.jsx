@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import WidgetHeader from "./WidgetHeader";
 import Stats from "./Stats";
 import Tabs from "./Tabs";
 import Feed from "./Feed";
 import AttackDistribution from "./AttackDistribution";
 import { Shield } from "lucide-react";
-import { sessionStats } from "./mock-data";
+import { mockEntries } from "./mock-data";
 import "./widget.css";
 
-const ThreatLevelBar = () => {
+const ThreatLevelBar = ({ stats }) => {
   // Calculate threat percentage based on blocked/processed ratio
-  const threatPercentage = Math.round((sessionStats.blocked / sessionStats.processed) * 100);
+  const threatPercentage = stats.processed > 0 
+    ? Math.round((stats.blocked / stats.processed) * 100) 
+    : 0;
   
   // Determine threat level and color class
   let threatLevel, threatClass;
@@ -44,8 +46,24 @@ const ThreatLevelBar = () => {
   );
 };
 
-const Widget = ({ isOpen, setIsOpen }) => {
+const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
   const [activeTab, setActiveTab] = useState("LIVE FEED");
+
+  // Calculate session statistics from analysis history
+  const stats = useMemo(() => {
+    if (analysisHistory.length === 0) {
+      return { processed: 0, blocked: 0, detectRate: 0 };
+    }
+
+    const blocked = analysisHistory.filter(entry => entry.action === 'BLOCKED').length;
+    const processed = analysisHistory.length;
+    const detectRate = processed > 0 ? Math.round((blocked / processed) * 100) : 0;
+
+    return { processed, blocked, detectRate };
+  }, [analysisHistory]);
+
+  // Use mock entries if no real data yet
+  const entries = analysisHistory.length > 0 ? analysisHistory : mockEntries;
 
   return (
     <>
@@ -59,11 +77,11 @@ const Widget = ({ isOpen, setIsOpen }) => {
 
       <div className={`pg-widget ${isOpen ? "pg-widget--open" : ""}`}>
         <WidgetHeader onClose={() => setIsOpen(false)} />
-        <Stats />
-        <ThreatLevelBar />
+        <Stats stats={stats} />
+        <ThreatLevelBar stats={stats} />
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === "LIVE FEED" && <Feed />}
+        {activeTab === "LIVE FEED" && <Feed entries={entries} />}
         {activeTab === "ANALYTICS" && (
           <div className="pg-placeholder pg-mono">Analytics dashboard coming soon</div>
         )}
