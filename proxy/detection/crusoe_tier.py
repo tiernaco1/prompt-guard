@@ -29,7 +29,7 @@ class PromptFirewall:
         response = crusoe.chat.completions.create(
             model="NVFP4/Qwen3-235B-A22B-Instruct-2507-FP4",
             messages=[{"role": "user", "content": content}],
-            max_tokens=60,
+            max_tokens=10,
             extra_body={"chat_template_kwargs": {"enable_thinking": False}},
         )
         return response.choices[0].message.content
