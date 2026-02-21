@@ -213,8 +213,23 @@
 }
 
 .pg-threat-header .pg-threat-level {
-  color: var(--pg-passed);
   font-weight: 600;
+}
+
+.pg-threat-level--low {
+  color: var(--pg-passed);
+}
+
+.pg-threat-level--medium {
+  color: hsl(40, 90%, 55%);
+}
+
+.pg-threat-level--high {
+  color: hsl(25, 85%, 55%);
+}
+
+.pg-threat-level--critical {
+  color: var(--pg-blocked);
 }
 
 .pg-threat-track {
@@ -228,12 +243,23 @@
 .pg-threat-fill {
   height: 100%;
   border-radius: 9999px;
-  width: 100%;
-  background: linear-gradient(90deg,
-    hsl(145, 70%, 50%) 0%,
-    hsl(145, 70%, 50%) 45%,
-    hsl(50, 90%, 55%) 70%,
-    hsl(0, 75%, 55%) 100%);
+  transition: width 0.4s ease, background-color 0.3s ease;
+}
+
+.pg-threat-fill--low {
+  background: var(--pg-passed);
+}
+
+.pg-threat-fill--medium {
+  background: hsl(40, 90%, 55%);
+}
+
+.pg-threat-fill--high {
+  background: hsl(25, 85%, 55%);
+}
+
+.pg-threat-fill--critical {
+  background: var(--pg-blocked);
 }
 
 /* ── Tabs ── */
