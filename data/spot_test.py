@@ -9,7 +9,8 @@ Sources:
   - data/labelled/benign.jsonl   (HuggingFace fka/awesome-chatgpt-prompts, sampled)
 
 Run from project root:
-  python data/spot_test.py
+  python data/spot_test.py              # full pipeline (Tier 1 Crusoe + Tier 2 Claude)
+  python data/spot_test.py --tier2-only # skip Tier 1, test Claude prompt directly
 """
 
 import json
@@ -21,6 +22,8 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "proxy"))
 
 from detection.crusoe_tier import PromptFirewall
+
+TIER2_ONLY = "--tier2-only" in sys.argv
 
 
 # ── Data loading ─────────────────────────────────────────────────────────────
@@ -49,7 +52,7 @@ def verdict_matches(expected: str, action: str) -> bool:
 
 # ── Test runner ───────────────────────────────────────────────────────────────
 
-def run_tests(test_cases: list[dict], firewall: PromptFirewall) -> list[dict]:
+def run_tests(test_cases: list[dict], firewall: PromptFirewall, tier2_only: bool = False) -> list[dict]:
     results = []
     total = len(test_cases)
     for i, case in enumerate(test_cases, 1):
@@ -60,8 +63,14 @@ def run_tests(test_cases: list[dict], firewall: PromptFirewall) -> list[dict]:
         print(f"  [{i:>3}/{total}] {prompt[:70]}", end="\r")
 
         try:
-            result = firewall.process(prompt)
-            action = result["action"]
+            if tier2_only:
+                # Skip Tier 1 — send everything straight to Claude
+                analysis = firewall.tier2_analyse(prompt)
+                action = analysis["verdict"].lower()
+                result = {"action": action, "tier": 2, "analysis": analysis}
+            else:
+                result = firewall.process(prompt)
+                action = result["action"]
             tier = result["tier"]
             correct = verdict_matches(expected, action)
 
@@ -198,10 +207,13 @@ def main():
     print(f"  ─────────────────────")
     print(f"  Total                : {len(all_cases)}")
     print(f"{'─' * 60}")
-    print(f"\nRunning... (each flagged prompt makes 2 API calls)\n")
+    if TIER2_ONLY:
+        print(f"\nMode: --tier2-only  (Crusoe skipped, all prompts go straight to Claude)\n")
+    else:
+        print(f"\nMode: full pipeline  (Tier 1 Crusoe → Tier 2 Claude if flagged)\n")
 
     firewall = PromptFirewall()
-    results = run_tests(all_cases, firewall)
+    results = run_tests(all_cases, firewall, tier2_only=TIER2_ONLY)
 
     print_results_table(results)
     print_summary(results)

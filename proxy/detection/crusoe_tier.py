@@ -6,13 +6,13 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import anthropic
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 crusoe = OpenAI(
-    base_url="https://inference.crusoecloud.com/v1",
-    api_key=os.environ["CRUSOE_KEY"],
+    base_url="https://hackeurope.crusoecloud.com/v1/",
+    api_key=os.environ["CRUSOE_API_KEY"],
 )
-claude = anthropic.Anthropic(api_key=os.environ["CLAUDE_KEY"])
+claude = anthropic.Anthropic(api_key=os.environ["CLAUDE_API_KEY"])
 
 
 class PromptFirewall:
@@ -26,7 +26,7 @@ class PromptFirewall:
         _prompt_path = Path(__file__).parent.parent.parent / "data" / "prompts" / "tier1_v1.txt"
         content = _prompt_path.read_text().format(prompt=prompt)
         response = crusoe.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+            model="NVFP4/Qwen3-235B-A22B-Instruct-2507-FP4",
             messages=[{"role": "user", "content": content}],
             max_tokens=30
         )
