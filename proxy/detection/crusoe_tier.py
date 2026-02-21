@@ -23,7 +23,7 @@ class PromptFirewall:
 
     def tier1_classify(self, prompt: str) -> str:
         """Crusoe — fast classification, <500ms"""
-        _prompt_path = Path(__file__).parent.parent.parent / "prompt-guard" / "data" / "prompts" / "tier1_v1.txt"
+        _prompt_path = Path(__file__).parent.parent.parent / "data" / "prompts" / "tier1_v1.txt"
         content = _prompt_path.read_text().format(prompt=prompt)
         response = crusoe.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-8B-Instruct",
@@ -34,7 +34,7 @@ class PromptFirewall:
 
     def tier2_analyse(self, prompt: str) -> dict:
         """Claude — deep analysis of flagged prompts"""
-        _prompt_path = Path(__file__).parent.parent.parent / "prompt-guard" / "data" / "prompts" / "tier2_v1.txt"
+        _prompt_path = Path(__file__).parent.parent.parent / "data" / "prompts" / "tier2_v1.txt"
         content = _prompt_path.read_text().format(
             total_processed=len(self.session_history),
             attack_patterns=self.attack_patterns,
