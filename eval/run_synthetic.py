@@ -11,6 +11,7 @@ Run from project root:
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -75,7 +76,7 @@ def main():
         print("\nNo synthetic data found. Run eval/generate_synthetic.py first.\n")
         return
 
-    print(f"\nSynthetic Detection Test — {len(all_cases)} prompts")
+    print(f"\nSynthetic Detection Test (Tier 1 / Crusoe only) — {len(all_cases)} prompts")
     print("─" * 60)
 
     firewall = PromptFirewall()
@@ -90,15 +91,19 @@ def main():
         print(f"  [{i:>3}/{total_prompts}] {prompt[:65]}", end="\r")
 
         try:
-            result = firewall.process(prompt)
-            action = result["action"]
+            t0 = time.perf_counter()
+            label = firewall.tier1_classify(prompt)
+            elapsed_ms = (time.perf_counter() - t0) * 1000
+            action = "allow" if "SAFE" in label.strip().upper() else "block"
         except Exception as e:
+            elapsed_ms = 0.0
             action = "error"
 
         if category not in by_category:
-            by_category[category] = {"correct": 0, "total": 0, "missed": [], "fp": []}
+            by_category[category] = {"correct": 0, "total": 0, "missed": [], "fp": [], "latencies_ms": []}
 
         by_category[category]["total"] += 1
+        by_category[category]["latencies_ms"].append(elapsed_ms)
         correct = verdict_matches(expected, action)
 
         if correct:
@@ -113,11 +118,12 @@ def main():
     print(" " * 80, end="\r")
 
     # ── Results table ─────────────────────────────────────────────────────────
-    print(f"\n{'Category':<28} {'Correct':>8}  {'Rate':>5}  Bar")
-    print("═" * 65)
+    print(f"\n{'Category':<28} {'Correct':>8}  {'Rate':>5}  {'Avg ms':>7}  Bar")
+    print("═" * 75)
 
     total_correct = 0
     total_all = 0
+    all_latencies = []
     false_negatives = []
     false_positives = []
 
@@ -126,20 +132,24 @@ def main():
             continue
         counts = by_category[cat]
         c, t = counts["correct"], counts["total"]
+        lats = counts["latencies_ms"]
+        avg_ms = sum(lats) / len(lats) if lats else 0
         total_correct += c
         total_all += t
+        all_latencies.extend(lats)
         pct = 100 * c // t if t else 0
         bar_len = min(t, 20)
         filled = round(pct / 100 * bar_len)
         bar = "█" * filled + "░" * (bar_len - filled)
         flag = "  ⚠️" if pct < 85 and cat != "benign_edge_case" else ""
-        print(f"  {cat:<26} {c:>4}/{t:<4}  {pct:>3}%  [{bar}]{flag}")
+        print(f"  {cat:<26} {c:>4}/{t:<4}  {pct:>3}%  {avg_ms:>6.0f}ms  [{bar}]{flag}")
         false_negatives.extend(counts["missed"])
         false_positives.extend(counts["fp"])
 
     overall = 100 * total_correct // total_all if total_all else 0
-    print("═" * 65)
-    print(f"  {'OVERALL':<26} {total_correct:>4}/{total_all:<4}  {overall:>3}%")
+    overall_avg_ms = sum(all_latencies) / len(all_latencies) if all_latencies else 0
+    print("═" * 75)
+    print(f"  {'OVERALL':<26} {total_correct:>4}/{total_all:<4}  {overall:>3}%  {overall_avg_ms:>6.0f}ms")
 
     # ── Misses ─────────────────────────────────────────────────────────────────
     if false_negatives:
@@ -160,11 +170,13 @@ def main():
         "total": total_all,
         "correct": total_correct,
         "overall_pct": overall,
+        "avg_latency_ms": round(overall_avg_ms),
         "by_category": {
             cat: {
                 "correct": d["correct"],
                 "total": d["total"],
                 "pct": 100 * d["correct"] // d["total"] if d["total"] else 0,
+                "avg_latency_ms": round(sum(d["latencies_ms"]) / len(d["latencies_ms"])) if d["latencies_ms"] else 0,
                 "missed": d["missed"],
                 "false_positives": d["fp"],
             }
