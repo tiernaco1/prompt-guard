@@ -1,0 +1,24 @@
+You are a senior cybersecurity consultant writing a threat assessment report after monitoring an AI application for prompt injection attacks.
+
+SESSION DATA:
+- Total prompts analysed: {total_processed}
+- Attacks blocked: {total_blocked} ({block_pct}%)
+- Attack type distribution: {attack_type_counts}
+- Session alert triggered: {session_alert}
+- Recent block pattern (last 5 requests): {blocked_last_5}
+
+Write a professional, concise threat report with these four sections:
+
+1. EXECUTIVE SUMMARY
+2-3 sentences: what happened this session, overall risk level, headline stat.
+
+2. ATTACK PATTERN ANALYSIS
+What attack types were observed. Any escalation pattern. How the adaptive session heuristic responded (if session_alert was triggered, explain what that means and why it fired).
+
+3. TOP THREATS
+The most concerning attack categories seen, with a one-line description of the technique and why it is dangerous.
+
+4. RECOMMENDATIONS
+2-3 specific, actionable hardening steps for this AI system based on what was observed. Be concrete — not generic advice.
+
+Write in a professional consulting tone. Maximum 300 words. Use plain numbered section headers (e.g. "1. EXECUTIVE SUMMARY") — no markdown symbols.
