@@ -13,11 +13,15 @@ function App() {
     try {
       const result = await checkPrompt(prompt);
       
-      // Create analysis entry
+      // Normalize action for widget feed
+      let normalizedAction = result.action.toUpperCase();
+      if (normalizedAction === 'BLOCK') normalizedAction = 'BLOCKED';
+      if (normalizedAction === 'SANITISE') normalizedAction = 'SANITISED';
+
       const entry = {
         id: crypto.randomUUID(),
         prompt: prompt,
-        action: result.action.toUpperCase(),
+        action: normalizedAction,
         tier: result.tier === 1 ? "T1" : "T2",
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
         responseTime: result.tier === 1 ? `${Math.floor(Math.random() * 200 + 200)}ms` : `${(Math.random() * 1.5 + 1.5).toFixed(1)}s`,
