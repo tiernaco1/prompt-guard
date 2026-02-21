@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./DemoApp.css";
 
-function ChatBox() {
+function ChatBox({ onPromptCheck }) {
   const [messages, setMessages] = useState([
     { id: 1, role: "bot", text: "Hey! Ask me anything." }
   ]);
@@ -29,15 +29,38 @@ function ChatBox() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    // Simulate bot response
-    await new Promise((r) => setTimeout(r, 500));
-    const botMsg = {
-      id: crypto.randomUUID(),
-      role: "bot",
-      text: `Thanks for your message! You said: "${text}"`
-    };
+    try {
+      // Check prompt with backend
+      const result = await onPromptCheck(text);
+      
+      // Simulate bot response based on result
+      await new Promise((r) => setTimeout(r, 500));
+      
+      let botResponse;
+      if (result.action === 'block') {
+        botResponse = "⚠️ This message has been blocked by PromptGuard for security reasons.";
+      } else if (result.action === 'sanitize') {
+        botResponse = `✓ Your message was processed (sanitized for safety): "${text}"`;
+      } else {
+        botResponse = `Thanks for your message! You said: "${text}"`;
+      }
 
-    setMessages((prev) => [...prev, botMsg]);
+      const botMsg = {
+        id: crypto.randomUUID(),
+        role: "bot",
+        text: botResponse
+      };
+
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMsg = {
+        id: crypto.randomUUID(),
+        role: "bot",
+        text: "Sorry, there was an error processing your message."
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    }
 
     setIsSending(false);
     inputRef.current?.focus();
@@ -84,7 +107,7 @@ function ChatBox() {
   );
 }
 
-const DemoApp = ({ isWidgetOpen }) => {
+const DemoApp = ({ isWidgetOpen, onPromptCheck }) => {
   return (
     <div className={`demo-app ${isWidgetOpen ? 'demo-app--shifted' : ''}`}>
       <div className="demo-header">
@@ -94,7 +117,7 @@ const DemoApp = ({ isWidgetOpen }) => {
 
       <div className="chatbox">
         <div className="chatbox-header">AI Assistant</div>
-        <ChatBox />
+        <ChatBox onPromptCheck={onPromptCheck} />
       </div>
     </div>
   );

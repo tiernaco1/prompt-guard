@@ -1,19 +1,22 @@
-import { mockEntries } from "./mock-data";
 import { useState } from "react";
 
-const actionIcons = { PASSED: "✓", BLOCKED: "▸", SANITISED: "⚠" };
+const actionIcons = { PASSED: "✓", ALLOW: "✓", BLOCKED: "▸", BLOCK: "▸", SANITISED: "⚠", SANITIZE: "⚠" };
 
 const FeedEntry = ({ entry }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const key = entry.action.toLowerCase();
+  
+  // Normalize action to uppercase and handle different naming conventions
+  const action = entry.action.toUpperCase();
+  const normalizedAction = action === 'ALLOW' ? 'PASSED' : action === 'SANITIZE' ? 'SANITISED' : action;
+  const key = normalizedAction.toLowerCase();
 
   return (
-    <div className={`pg-feed-entry pg-feed-entry--${key}`}>
+    <div className={`pg-feed-entry pg-feed-entry--${key === 'passed' ? 'passed' : key}`}>
       <div className="pg-entry-row">
         <div className="pg-entry-content">
           <div className="pg-entry-badges">
-            <span className={`pg-action-badge pg-action-badge--${key} pg-mono`}>
-              <span>{actionIcons[entry.action]}</span> {entry.action}
+            <span className={`pg-action-badge pg-action-badge--${key === 'passed' ? 'passed' : key} pg-mono`}>
+              <span>{actionIcons[action] || actionIcons[normalizedAction]}</span> {normalizedAction}
             </span>
             {entry.attackType && (
               <span className="pg-attack-type pg-mono">{entry.attackType}</span>
@@ -52,9 +55,9 @@ const FeedEntry = ({ entry }) => {
   );
 };
 
-const Feed = () => (
+const Feed = ({ entries }) => (
   <div className="pg-feed">
-    {mockEntries.map((entry) => (
+    {entries.map((entry) => (
       <FeedEntry key={entry.id} entry={entry} />
     ))}
   </div>
