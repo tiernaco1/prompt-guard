@@ -86,7 +86,7 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [], onReset, generateRepo
       return { processed: 0, blocked: 0, detectRate: 0 };
     }
 
-    const blocked = analysisHistory.filter(entry => entry.action === 'BLOCKED').length;
+    const blocked = analysisHistory.filter(entry => entry.action === 'BLOCKED' || entry.action === 'SANITISED').length;
     const processed = analysisHistory.length;
     const detectRate = processed > 0 ? Math.round((blocked / processed) * 100) : 0;
 
