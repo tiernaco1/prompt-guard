@@ -24,6 +24,14 @@ app.add_middleware(
 PROXY_URL = os.environ.get("PROXY_URL", "http://localhost:8000")
 claude = anthropic.Anthropic(api_key=os.environ["CLAUDE_API_KEY"])
 REPORT_TEMPLATE = Path(__file__).parent.parent / "data" / "prompts" / "report_v1.txt"
+SHOPBOT_SYSTEM_PROMPT = (
+    "You are a helpful customer service assistant for an online shop. "
+    "You help customers with queries about products, orders, shipping, returns, "
+    "and general shopping questions. Be friendly, concise, and professional. "
+    "If a customer asks about something outside the scope of shopping assistance, "
+    "politely redirect them. Respond in plain text only. Do not use any markdown "
+    "formatting such as bold, italics, headers, bullet points, or code blocks."
+)
 
 
 class ChatRequest(BaseModel):
@@ -67,13 +75,22 @@ async def chat(
         response.headers["X-Session-Id"] = returned_sid
         result["session_id"] = returned_sid
 
-    # Step 2: If allowed, forward to Claude and return its response
+    # Step 2: If allowed, forward original prompt; if sanitised, forward cleaned version.
+    prompt_to_forward = None
     if result["action"] == "allow":
+        prompt_to_forward = body.prompt
+    elif result["action"] == "sanitise":
+        sanitised = result.get("analysis", {}).get("sanitised_version")
+        if sanitised:
+            prompt_to_forward = sanitised
+            result["sanitised_prompt"] = sanitised
+
+    if prompt_to_forward:
         claude_resp = claude.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
-            system="You are a helpful customer service assistant for an online shop. You help customers with queries about products, orders, shipping, returns, and general shopping questions. Be friendly, concise, and professional. If a customer asks about something outside the scope of shopping assistance, politely redirect them. Respond in plain text only. Do not use any markdown formatting such as bold, italics, headers, bullet points, or code blocks.",
-            messages=[{"role": "user", "content": body.prompt}],
+            system=SHOPBOT_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt_to_forward}],
         )
         result["response"] = claude_resp.content[0].text
 

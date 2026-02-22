@@ -69,8 +69,10 @@ function ChatBox({ onPromptCheck, injectRef }) {
       if (result.action === 'block') {
         setMessages((prev) => prev.map((m) => m.id === userMsgId ? { ...m, blocked: true } : m));
         botResponse = "I'm sorry, I can't help with that request. If you have a genuine question about your order or a product, I'd be happy to assist!";
-      } else if (result.action === 'sanitize') {
-        botResponse = `✓ Your message was processed (sanitized for safety): "${text}"`;
+      } else if (result.action === 'sanitise') {
+        setMessages((prev) => prev.map((m) => m.id === userMsgId ? { ...m, sanitised: true } : m));
+        botResponse = result.response
+          ?? "I've answered your question. Note: part of your message contained content that was removed for safety.";
       } else if (result.action === 'allow') {
         botResponse = result.response ?? `✅ Message processed. You said: "${text}"`;
       } else {
@@ -108,6 +110,12 @@ function ChatBox({ onPromptCheck, injectRef }) {
               <div className="chatbox-blocked-pill">
                 <span className="chatbox-blocked-pill-dot" />
                 Blocked by PromptGuard
+              </div>
+            )}
+            {m.sanitised && (
+              <div className="chatbox-sanitised-pill">
+                <span className="chatbox-sanitised-pill-dot" />
+                Sanitised by PromptGuard
               </div>
             )}
           </div>
