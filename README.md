@@ -2,6 +2,12 @@
 
 > Defending AI with AI. Real-time two-tier firewall that detects and blocks prompt injection attacks before they reach the model.
 
+[![PyPI version](https://img.shields.io/pypi/v/promptguard-firewall)](https://pypi.org/project/promptguard-firewall/)
+[![Hosted API](https://img.shields.io/badge/API-live-brightgreen)](https://prompt-guard.fly.dev/health)
+
+**Hosted API:** `https://prompt-guard.fly.dev`
+**SDK:** `pip install promptguard-firewall`
+
 ## Architecture
 
 ```mermaid
