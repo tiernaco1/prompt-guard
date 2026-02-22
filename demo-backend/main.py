@@ -72,6 +72,7 @@ async def chat(
         claude_resp = claude.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
+            system="You are a helpful customer service assistant for an online shop. You help customers with queries about products, orders, shipping, returns, and general shopping questions. Be friendly, concise, and professional. If a customer asks about something outside the scope of shopping assistance, politely redirect them. Respond in plain text only. Do not use any markdown formatting such as bold, italics, headers, bullet points, or code blocks.",
             messages=[{"role": "user", "content": body.prompt}],
         )
         result["response"] = claude_resp.content[0].text
@@ -105,6 +106,7 @@ async def report(
     claude_resp = claude.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=600,
+        system="Respond in plain text only. Do not use any markdown formatting such as bold, italics, headers, bullet points, or code blocks.",
         messages=[{"role": "user", "content": filled}],
     )
     return {"report": claude_resp.content[0].text}
