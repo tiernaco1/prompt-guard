@@ -33,6 +33,9 @@ import Stats from "./Stats";
 import Tabs from "./Tabs";
 import Feed from "./Feed";
 import AttackDistribution from "./AttackDistribution";
+import VerdictBreakdown from "./VerdictBreakdown";
+import SeverityDistribution from "./SeverityDistribution";
+import TierStats from "./TierStats";
 import { Shield } from "lucide-react";
 import "./widget.css";
 
@@ -92,13 +95,15 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [], onReset, generateRepo
 
   return (
     <>
-      <button
-        className="pg-toggle-btn"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle PromptGuard"
-      >
-        <Shield size={20} />
-      </button>
+      {!isOpen && (
+        <button
+          className="pg-toggle-btn"
+          onClick={() => setIsOpen(true)}
+          aria-label="Toggle PromptGuard"
+        >
+          <Shield size={20} />
+        </button>
+      )}
 
       <div className={`pg-widget ${isOpen ? "pg-widget--open" : ""}`}>
         <WidgetHeader onClose={() => setIsOpen(false)} onReset={onReset} />
@@ -114,7 +119,12 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [], onReset, generateRepo
           )
         )}
         {activeTab === "ANALYTICS" && (
-          <div className="pg-placeholder pg-mono">Analytics dashboard coming soon</div>
+          <div className="pg-analytics">
+            <VerdictBreakdown entries={analysisHistory} />
+            <AttackDistribution entries={analysisHistory} />
+            <SeverityDistribution entries={analysisHistory} />
+            <TierStats entries={analysisHistory} />
+          </div>
         )}
         {activeTab === "REPORT" && (
           <ReportTab generateReport={generateReport} />
