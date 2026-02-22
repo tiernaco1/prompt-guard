@@ -1,68 +1,342 @@
-/* Demo App Container */
-.demo-app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+/* ── Page Shell ── */
+.shopbot-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
   transition: margin-right 0.3s ease;
 }
 
-.demo-app--shifted {
+.shopbot-page--shifted {
   margin-right: 420px;
 }
 
-.demo-header {
-  text-align: center;
-  color: white;
-  margin-bottom: 40px;
+/* ── Nav Bar ── */
+.shopbot-nav {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
 }
 
-.demo-header h1 {
-  font-size: 48px;
+.shopbot-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.shopbot-nav-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 700;
-  margin: 0 0 10px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
 }
 
-.demo-header h2 {
-  font-size: 20px;
-  font-weight: 400;
+.shopbot-nav-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.shopbot-nav-links {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+}
+
+.shopbot-nav-links a {
+  font-size: 14px;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.shopbot-nav-links a:hover,
+.shopbot-nav-links a.shopbot-nav-active {
+  color: #0f172a;
+}
+
+.shopbot-nav-cta {
+  padding: 8px 18px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.shopbot-nav-cta:hover {
+  background: #1d4ed8;
+}
+
+/* ── Body Layout ── */
+.shopbot-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.shopbot-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 24px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.shopbot-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.shopbot-sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.shopbot-sidebar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.shopbot-sidebar-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.shopbot-sidebar-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 16px 0;
+}
+
+.shopbot-sidebar-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.shopbot-sidebar-categories {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-/* Chatbox Container */
-.chatbox {
-  max-width: 700px;
-  margin: 0 auto;
-  background: white;
+.shopbot-sidebar-categories li {
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #475569;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.shopbot-sidebar-categories li:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ── Attack Demo Chips ── */
+.shopbot-attack-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shopbot-chip {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.shopbot-chip:hover {
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.1);
+}
+
+.shopbot-chip-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.shopbot-chip--jailbreak .shopbot-chip-label  { color: #dc2626; }
+.shopbot-chip--extraction .shopbot-chip-label { color: #d97706; }
+.shopbot-chip--hijack .shopbot-chip-label     { color: #7c3aed; }
+.shopbot-chip--smuggling .shopbot-chip-label  { color: #0891b2; }
+
+.shopbot-chip--jailbreak:hover  { border-color: #fca5a5; background: #fef2f2; }
+.shopbot-chip--extraction:hover { border-color: #fcd34d; background: #fffbeb; }
+.shopbot-chip--hijack:hover     { border-color: #c4b5fd; background: #f5f3ff; }
+.shopbot-chip--smuggling:hover  { border-color: #67e8f9; background: #ecfeff; }
+
+.shopbot-chip-preview {
+  font-size: 11px;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 190px;
+}
+
+/* ── Chat Pane ── */
+.shopbot-chat-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 32px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+/* ── Chat Widget ── */
+.shopbot-chat-widget {
+  width: 100%;
+  max-width: 520px;
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 600px;
 }
 
-.chatbox-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  font-weight: 600;
-  font-size: 18px;
+/* ── Chat Header ── */
+.shopbot-chat-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.shopbot-chat-header-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.chatbox-header::before {
-  content: '💬';
-  font-size: 24px;
+.shopbot-chat-avatar {
+  width: 38px;
+  height: 38px;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
-/* Messages Area */
+.shopbot-chat-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.shopbot-chat-status {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.shopbot-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+  flex-shrink: 0;
+  animation: sb-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes sb-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.shopbot-pg-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── ChatBox internals (kept as-is, accent color overrides only) ── */
+
 .chatbox-area {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -75,7 +349,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #f9fafb;
+  background: #f8fafc;
 }
 
 .chatbox-messages::-webkit-scrollbar {
@@ -95,7 +369,43 @@
   background: #9ca3af;
 }
 
-/* Message Bubbles */
+/* Message group: bubble + optional pill */
+.chatbox-message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.chatbox-message-group.user {
+  align-items: flex-end;
+}
+
+.chatbox-message-group.bot {
+  align-items: flex-start;
+}
+
+.chatbox-blocked-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  animation: slideIn 0.2s ease;
+}
+
+.chatbox-blocked-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dc2626;
+  flex-shrink: 0;
+}
+
 .chatbox-bubble {
   max-width: 70%;
   padding: 12px 16px;
@@ -107,31 +417,22 @@
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .chatbox-bubble.bot {
   background: #e5e7eb;
   color: #1f2937;
-  align-self: flex-start;
   border-bottom-left-radius: 4px;
 }
 
 .chatbox-bubble.user {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2563eb;
   color: white;
-  align-self: flex-end;
   border-bottom-right-radius: 4px;
 }
 
-/* Composer */
 .chatbox-composer {
   padding: 16px 20px;
   background: white;
@@ -139,13 +440,14 @@
   display: flex;
   gap: 12px;
   align-items: flex-end;
+  flex-shrink: 0;
 }
 
 .chatbox-composer textarea {
   flex: 1;
   padding: 12px 16px;
   border: 2px solid #e5e7eb;
-  border-radius: 24px;
+  border-radius: 12px;
   font-size: 15px;
   font-family: inherit;
   resize: none;
@@ -156,51 +458,27 @@
 }
 
 .chatbox-composer textarea:focus {
-  border-color: #667eea;
+  border-color: #2563eb;
 }
 
 .chatbox-composer button {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 20px;
+  background: #2563eb;
   color: white;
   border: none;
-  border-radius: 24px;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s;
   white-space: nowrap;
 }
 
 .chatbox-composer button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.chatbox-composer button:active:not(:disabled) {
-  transform: translateY(0);
+  background: #1d4ed8;
 }
 
 .chatbox-composer button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .demo-app {
-    padding: 20px 10px;
-  }
-
-  .demo-header h1 {
-    font-size: 32px;
-  }
-
-  .demo-header h2 {
-    font-size: 16px;
-  }
-
-  .chatbox {
-    height: calc(100vh - 200px);
-  }
 }

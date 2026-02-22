@@ -4,20 +4,54 @@
 
 ## Architecture
 
+```mermaid
+flowchart TD
+  U[User prompt] --> T1[Tier 1 triage: Qwen3 on Crusoe]
+  T1 --> L{Tier 1 label}
+
+  L -->|OBVIOUS_ATTACK| B[Block now]
+  L -->|SUSPICIOUS| E[Escalate to Tier 2]
+  L -->|SAFE| R{Session alert}
+
+  S[Session state: last 5 verdicts] --> R
+  R -->|no| A[Allow now]
+  R -->|yes| E
+
+  E --> T2[Tier 2 analysis: Claude Haiku]
+  T2 --> J[Return JSON verdict]
+
+  J --> V[Verdict: BLOCK or SANITISE or ALLOW]
+  J --> T[Attack type: 6 categories]
+  J --> SC[Severity and confidence]
+  J --> SV[Sanitised version if needed]
 ```
-User Input
-    │
-    ▼
-┌──────────────────────────────┐
-│  TIER 1: Crusoe / Qwen3-235B │  <500ms — classifies every prompt
-│  SAFE / SUSPICIOUS / ATTACK  │
-└──────────┬───────────────────┘
-           │ suspicious / obvious attack
-           ▼
-┌──────────────────────────────┐
-│  TIER 2: Claude Haiku        │  deep analysis — JSON verdict
-│  BLOCK / SANITISE / ALLOW    │  attack_type, confidence, reason
-└──────────────────────────────┘
+
+### Business Flow
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant A as App (UI)
+  participant API as Backend API
+  participant PF as PromptGuard Middleware
+  participant L as LLM Provider
+
+  U->>A: Enter message / action
+  A->>API: POST /chat (user_input, context)
+  API->>PF: validate(user_input, recent_history, policy)
+  alt SAFE / ALLOW
+    PF->>L: call LLM(prompt)
+    L->>PF: completion
+    PF->>API: allow(response)
+  else SUSPICIOUS / SANITISE
+    PF->>L: call LLM(sanitised_prompt)
+    L->>PF: completion
+    PF->>API: allow(response + audit metadata)
+  else OBVIOUS_ATTACK / BLOCK
+    PF->>API: block(reason, attack_type)
+  end
+  API->>A: response (or blocked message)
+  A->>U: display result
 ```
 
 **6-category attack taxonomy:** Direct Jailbreak, Indirect Injection, Role Hijacking, Payload Smuggling, Context Manipulation, Information Extraction.
