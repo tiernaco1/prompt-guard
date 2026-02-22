@@ -5,7 +5,7 @@ A prompt injection firewall for AI applications.
 ## Install
 
 ```bash
-pip install promptguard
+pip install promptguard-firewall
 ```
 
 ## Usage

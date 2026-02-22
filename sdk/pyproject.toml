@@ -1,10 +1,10 @@
 [build-system]
 requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "promptguard"
-version = "0.1.0"
+name = "promptguard-firewall"
+version = "0.1.1"
 description = "Prompt injection firewall for AI applications"
 readme = "README.md"
 requires-python = ">=3.8"
