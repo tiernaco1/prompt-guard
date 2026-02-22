@@ -31,10 +31,14 @@ function App() {
         tier: result.tier === 1 ? "T1" : "T2",
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
         responseTime: result.tier === 1 ? `${Math.floor(Math.random() * 200 + 200)}ms` : `${(Math.random() * 1.5 + 1.5).toFixed(1)}s`,
+        t1Label: result.t1_label,
+        escalationReason: result.escalation_reason ?? null,
         ...(result.analysis && {
           attackType: result.analysis.attack_type,
           severity: result.analysis.severity,
-          detail: result.analysis.explanation
+          detail: result.analysis.explanation,
+          confidence: result.analysis.confidence,
+          sanitisedVersion: result.analysis.sanitised_version,
         })
       };
 

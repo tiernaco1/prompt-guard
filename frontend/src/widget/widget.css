@@ -438,6 +438,7 @@
 .pg-entry-tier-row {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -454,6 +455,63 @@
   font-size: 10px;
   color: var(--pg-fg-muted);
   margin-top: 4px;
+}
+
+/* ── T1 classification label ── */
+.pg-t1-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.pg-t1-label--safe     { color: var(--pg-passed); }
+.pg-t1-label--suspicious { color: var(--pg-medium); }
+.pg-t1-label--obvious  { color: var(--pg-blocked); }
+
+/* ── Confidence badge ── */
+.pg-confidence {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  padding: 1px 5px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.pg-confidence--high   { color: var(--pg-passed);   border-color: hsla(145, 70%, 50%, 0.4); background: hsla(145, 70%, 50%, 0.08); }
+.pg-confidence--medium { color: var(--pg-medium);   border-color: hsla(40,  90%, 55%, 0.4); background: hsla(40,  90%, 55%, 0.08); }
+.pg-confidence--low    { color: var(--pg-fg-muted); border-color: hsla(215, 15%, 55%, 0.4); background: hsla(215, 15%, 55%, 0.08); }
+
+/* ── Session alert ── */
+.pg-session-alert {
+  font-size: 10px;
+  color: hsl(30, 90%, 60%);
+  margin-top: 5px;
+}
+
+/* ── Sanitised version block ── */
+.pg-sanitised-block {
+  margin-top: 8px;
+  border-left: 2px solid hsla(40, 90%, 55%, 0.4);
+  padding-left: 10px;
+}
+
+.pg-sanitised-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--pg-sanitised);
+  margin-bottom: 4px;
+}
+
+.pg-sanitised-text {
+  font-size: 11px;
+  color: var(--pg-fg-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ── Placeholder tabs ── */
