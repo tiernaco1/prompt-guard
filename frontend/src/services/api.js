@@ -63,4 +63,19 @@ const getMockResponse = (prompt) => {
   };
 };
 
+export const generateReport = async () => {
+  const headers = {};
+  if (sessionId) headers['X-Session-Id'] = sessionId;
+  const res = await fetch(`${DEMO_BACKEND_URL}/report`, { method: 'POST', headers });
+  if (!res.ok) throw new Error(`Report failed: ${res.status}`);
+  return res.json();
+};
+
+export const resetSession = async () => {
+  const headers = {};
+  if (sessionId) headers['X-Session-Id'] = sessionId;
+  await fetch(`${DEMO_BACKEND_URL}/session/reset`, { method: 'POST', headers });
+  sessionId = null;
+};
+
 export default { sendChat };

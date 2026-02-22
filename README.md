@@ -25,45 +25,66 @@ User Input
 ## Quick Start (Docker — recommended)
 
 ```bash
-# 1. Add your API keys to .env
-#    CRUSOE_API_KEY=...
-#    CLAUDE_API_KEY=...
+# 1. Create a .env file in the project root with your API keys:
+#
+#    CRUSOE_API_KEY=<your-crusoe-key>
+#    CLAUDE_API_KEY=<your-anthropic-key>
 
-# 2. Start everything
+# 2. Build and start all three services
 docker compose up --build
-
-# Frontend: http://localhost:5173
-# Backend:  http://localhost:8000
-# API docs: http://localhost:8000/docs
 ```
 
-The backend healthcheck runs automatically — the frontend container will start once the backend is healthy (~15s).
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Firewall proxy (API) | http://localhost:8000 |
+| Demo backend | http://localhost:8001 |
+| API docs (Swagger) | http://localhost:8000/docs |
+
+Services start in dependency order: backend → demo-backend → frontend. The healthcheck runs automatically; expect ~15 s before the frontend is ready.
 
 ## Quick Start (local, no Docker)
 
+Run each service in a separate terminal from the `prompt-guard/` root.
+
 ```bash
-# Terminal 1 — Backend
+# Terminal 1 — Firewall proxy
 cd proxy
 pip install -r requirements.txt
-uvicorn api:app --reload
+uvicorn api:app --reload --port 8000
+```
 
-# Terminal 2 — Frontend
+```bash
+# Terminal 2 — Demo backend
+cd demo-backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
+```
+
+```bash
+# Terminal 3 — Frontend
 cd frontend
 npm install
 npm run dev
 ```
 
+> **Prerequisites:** Python 3.10+, Node.js 18+, a `.env` file in `prompt-guard/` containing `CRUSOE_API_KEY` and `CLAUDE_API_KEY`.
+
 ## Project Structure
 
 ```
 prompt-guard/
-├── proxy/                        # FastAPI backend
+├── proxy/                        # FastAPI firewall proxy (port 8000)
 │   ├── api.py                    # /check and /health endpoints
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── detection/
 │       └── crusoe_tier.py        # Two-tier firewall logic
-├── frontend/                     # React + Vite UI
+├── demo-backend/                 # FastAPI demo app behind the firewall (port 8001)
+│   ├── main.py                   # /chat, /report, /session/reset endpoints
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/                     # React + Vite UI (port 5173)
 │   ├── Dockerfile
 │   ├── vite.config.js
 │   └── src/

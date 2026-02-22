@@ -1,6 +1,6 @@
-import { Shield, X } from "lucide-react";
+import { RotateCcw, Shield, X } from "lucide-react";
 
-const WidgetHeader = ({ onClose }) => (
+const WidgetHeader = ({ onClose, onReset }) => (
   <div className="pg-header">
     <div className="pg-header-left">
       <Shield className="pg-header-icon" />
@@ -13,6 +13,11 @@ const WidgetHeader = ({ onClose }) => (
         <span className="pg-active-dot" />
         <span className="pg-active-label pg-mono">ACTIVE</span>
       </div>
+      {onReset && (
+        <button className="pg-close-btn" onClick={onReset} aria-label="Reset session" title="Reset session">
+          <RotateCcw size={16} />
+        </button>
+      )}
       {onClose && (
         <button className="pg-close-btn" onClick={onClose} aria-label="Close panel">
           <X size={16} />

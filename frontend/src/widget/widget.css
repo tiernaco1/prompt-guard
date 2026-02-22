@@ -438,6 +438,7 @@
 .pg-entry-tier-row {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
 }
 
@@ -454,6 +455,63 @@
   font-size: 10px;
   color: var(--pg-fg-muted);
   margin-top: 4px;
+}
+
+/* ── T1 classification label ── */
+.pg-t1-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.pg-t1-label--safe     { color: var(--pg-passed); }
+.pg-t1-label--suspicious { color: var(--pg-medium); }
+.pg-t1-label--obvious  { color: var(--pg-blocked); }
+
+/* ── Confidence badge ── */
+.pg-confidence {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  padding: 1px 5px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.pg-confidence--high   { color: var(--pg-passed);   border-color: hsla(145, 70%, 50%, 0.4); background: hsla(145, 70%, 50%, 0.08); }
+.pg-confidence--medium { color: var(--pg-medium);   border-color: hsla(40,  90%, 55%, 0.4); background: hsla(40,  90%, 55%, 0.08); }
+.pg-confidence--low    { color: var(--pg-fg-muted); border-color: hsla(215, 15%, 55%, 0.4); background: hsla(215, 15%, 55%, 0.08); }
+
+/* ── Session alert ── */
+.pg-session-alert {
+  font-size: 10px;
+  color: hsl(30, 90%, 60%);
+  margin-top: 5px;
+}
+
+/* ── Sanitised version block ── */
+.pg-sanitised-block {
+  margin-top: 8px;
+  border-left: 2px solid hsla(40, 90%, 55%, 0.4);
+  padding-left: 10px;
+}
+
+.pg-sanitised-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--pg-sanitised);
+  margin-bottom: 4px;
+}
+
+.pg-sanitised-text {
+  font-size: 11px;
+  color: var(--pg-fg-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ── Placeholder tabs ── */
@@ -557,20 +615,128 @@
   color: var(--pg-fg-muted);
 }
 
+/* ── Analytics Tab ── */
+.pg-analytics {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pg-analytics-empty {
+  font-size: 12px;
+  color: var(--pg-fg-muted);
+  margin: 0;
+}
+
+/* Tier split bar */
+.pg-tier-split-track {
+  display: flex;
+  height: 12px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--pg-secondary);
+}
+
+.pg-tier-split-t1 {
+  height: 100%;
+  background: var(--pg-tier1);
+  transition: width 0.7s ease;
+}
+
+.pg-tier-split-t2 {
+  height: 100%;
+  background: var(--pg-tier2);
+  transition: width 0.7s ease;
+}
+
+.pg-tier-split-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.pg-tier-split-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-tier-split-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pg-tier-split-dot--t1 { background: var(--pg-tier1); }
+.pg-tier-split-dot--t2 { background: var(--pg-tier2); }
+
+.pg-tier-split-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pg-fg);
+}
+
+.pg-tier-split-label {
+  font-size: 9px;
+  color: var(--pg-fg-muted);
+  letter-spacing: 0.08em;
+  margin-top: 1px;
+}
+
+/* ── Report Tab ── */
+.pg-report {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .pg-report-btn {
+  align-self: flex-start;
   display: flex;
   align-items: center;
   gap: 6px;
   border-radius: 4px;
-  border: 1px solid var(--pg-border);
-  background: none;
-  padding: 6px 12px;
-  font-size: 10px;
-  color: var(--pg-fg-dim);
+  border: 1px solid var(--pg-accent);
+  background: hsla(200, 90%, 55%, 0.08);
+  padding: 8px 16px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--pg-accent);
   cursor: pointer;
   transition: background 0.2s;
 }
 
-.pg-report-btn:hover {
-  background: var(--pg-secondary);
+.pg-report-btn:hover:not(:disabled) {
+  background: hsla(200, 90%, 55%, 0.18);
+}
+
+.pg-report-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pg-report-error {
+  font-size: 12px;
+  color: var(--pg-blocked);
+}
+
+.pg-report-text {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--pg-fg-dim);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--pg-row-bg);
+  border: 1px solid var(--pg-border);
+  border-radius: var(--pg-radius);
+  padding: 16px;
+  margin: 0;
 }
