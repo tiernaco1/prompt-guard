@@ -1,14 +1,17 @@
 // API service for PromptGuard demo backend
 const DEMO_BACKEND_URL = import.meta.env.VITE_DEMO_BACKEND_URL || 'http://localhost:8001';
 
+let sessionId = null;
+
 export const sendChat = async (prompt) => {
   console.log('🔍 Calling demo backend:', DEMO_BACKEND_URL);
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (sessionId) headers['X-Session-Id'] = sessionId;
+
     const response = await fetch(`${DEMO_BACKEND_URL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ prompt }),
     });
 
@@ -17,6 +20,10 @@ export const sendChat = async (prompt) => {
     }
 
     const data = await response.json();
+
+    // Persist session ID for subsequent requests
+    if (data.session_id) sessionId = data.session_id;
+
     console.log('✅ Demo backend response:', data);
     return data;
   } catch (error) {
