@@ -2,6 +2,8 @@
 
 A prompt injection firewall for AI applications.
 
+[![PyPI version](https://img.shields.io/pypi/v/promptguard-firewall)](https://pypi.org/project/promptguard-firewall/)
+
 ## Install
 
 ```bash
@@ -39,3 +41,9 @@ else:
 | `action` | `"allow"` / `"block"` / `"sanitise"` |
 | `tier` | `1` (fast, ~250ms) or `2` (deep analysis, ~2s) |
 | `analysis` | `null` for Tier 1 blocks, full JSON for Tier 2 |
+
+## Links
+
+- [PyPI package](https://pypi.org/project/promptguard-firewall/)
+- [Hosted API](https://prompt-guard.fly.dev)
+- [GitHub](https://github.com/tiernaco1/prompt-guard)
