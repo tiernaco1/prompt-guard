@@ -74,13 +74,17 @@ npm run dev
 
 ```
 prompt-guard/
-├── proxy/                        # FastAPI backend
+├── proxy/                        # FastAPI firewall proxy (port 8000)
 │   ├── api.py                    # /check and /health endpoints
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── detection/
 │       └── crusoe_tier.py        # Two-tier firewall logic
-├── frontend/                     # React + Vite UI
+├── demo-backend/                 # FastAPI demo app behind the firewall (port 8001)
+│   ├── main.py                   # /chat, /report, /session/reset endpoints
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/                     # React + Vite UI (port 5173)
 │   ├── Dockerfile
 │   ├── vite.config.js
 │   └── src/
