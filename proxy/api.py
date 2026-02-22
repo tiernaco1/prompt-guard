@@ -66,4 +66,17 @@ def session_stats(
         "blocked_last_5": list(s.blocked_last_5),
         "blocked_recent_count": s.blocked_recent_count(),
         "session_alert": s.session_alert,
+        "attack_type_counts": s.attack_type_counts,
+        "block_pct": round(s.total_blocked / s.total_processed * 100, 1) if s.total_processed else 0,
     }
+
+
+@app.post("/session/reset")
+def session_reset(
+    x_session_id: Optional[str] = Header(None),
+    session_id: Optional[str] = Cookie(None),
+):
+    sid = x_session_id or session_id
+    if sid and sid in sessions:
+        sessions[sid] = SessionState()
+    return {"status": "reset"}

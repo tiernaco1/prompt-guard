@@ -1,4 +1,33 @@
 import { useState, useMemo } from "react";
+
+const ReportTab = ({ generateReport }) => {
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await generateReport();
+      setReport(data.report);
+    } catch {
+      setError("Failed to generate report.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="pg-report">
+      <button className="pg-report-btn pg-mono" onClick={handleGenerate} disabled={loading}>
+        {loading ? "GENERATING..." : "GENERATE REPORT"}
+      </button>
+      {error && <p className="pg-report-error pg-mono">{error}</p>}
+      {report && <pre className="pg-report-text pg-mono">{report}</pre>}
+    </div>
+  );
+};
 import WidgetHeader from "./WidgetHeader";
 import Stats from "./Stats";
 import Tabs from "./Tabs";
@@ -45,7 +74,7 @@ const ThreatLevelBar = ({ stats }) => {
   );
 };
 
-const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
+const Widget = ({ isOpen, setIsOpen, analysisHistory = [], onReset, generateReport }) => {
   const [activeTab, setActiveTab] = useState("LIVE FEED");
 
   // Calculate session statistics from analysis history
@@ -72,7 +101,7 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
       </button>
 
       <div className={`pg-widget ${isOpen ? "pg-widget--open" : ""}`}>
-        <WidgetHeader onClose={() => setIsOpen(false)} />
+        <WidgetHeader onClose={() => setIsOpen(false)} onReset={onReset} />
         <Stats stats={stats} />
         <ThreatLevelBar stats={stats} />
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -88,7 +117,7 @@ const Widget = ({ isOpen, setIsOpen, analysisHistory = [] }) => {
           <div className="pg-placeholder pg-mono">Analytics dashboard coming soon</div>
         )}
         {activeTab === "REPORT" && (
-          <div className="pg-placeholder pg-mono">Threat report generation coming soon</div>
+          <ReportTab generateReport={generateReport} />
         )}
       </div>
     </>

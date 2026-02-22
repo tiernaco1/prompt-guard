@@ -2,12 +2,18 @@ import { useState } from 'react'
 import './App.css'
 import DemoApp from './demo-site/DemoApp'
 import Widget from './widget/Widget'
-import { sendChat } from './services/api'
+import { sendChat, generateReport, resetSession } from './services/api'
 
 function App() {
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [latestAnalysis, setLatestAnalysis] = useState(null);
   const [analysisHistory, setAnalysisHistory] = useState([]);
+
+  const handleReset = async () => {
+    await resetSession();
+    setAnalysisHistory([]);
+    setLatestAnalysis(null);
+  };
 
   const handlePromptCheck = async (prompt) => {
     try {
@@ -48,11 +54,13 @@ function App() {
         isWidgetOpen={isWidgetOpen} 
         onPromptCheck={handlePromptCheck}
       />
-      <Widget 
-        isOpen={isWidgetOpen} 
+      <Widget
+        isOpen={isWidgetOpen}
         setIsOpen={setIsWidgetOpen}
         latestAnalysis={latestAnalysis}
         analysisHistory={analysisHistory}
+        onReset={handleReset}
+        generateReport={generateReport}
       />
     </>
   )

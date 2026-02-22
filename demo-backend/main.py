@@ -23,6 +23,7 @@ app.add_middleware(
 
 PROXY_URL = os.environ.get("PROXY_URL", "http://localhost:8000")
 claude = anthropic.Anthropic(api_key=os.environ["CLAUDE_API_KEY"])
+REPORT_TEMPLATE = Path(__file__).parent.parent / "data" / "prompts" / "report_v1.txt"
 
 
 class ChatRequest(BaseModel):
@@ -76,3 +77,49 @@ async def chat(
         result["response"] = claude_resp.content[0].text
 
     return result
+
+
+@app.post("/report")
+async def report(
+    x_session_id: Optional[str] = Header(None),
+    session_id: Optional[str] = Cookie(None),
+):
+    sid = x_session_id or session_id
+    async with httpx.AsyncClient() as client:
+        stats_resp = await client.get(
+            f"{PROXY_URL}/session/stats",
+            headers={"X-Session-Id": sid} if sid else {},
+            timeout=5.0,
+        )
+        if stats_resp.status_code == 404:
+            raise HTTPException(status_code=404, detail="Session not found")
+        stats = stats_resp.json()
+    filled = REPORT_TEMPLATE.read_text().format(
+        total_processed=stats["total_processed"],
+        total_blocked=stats["total_blocked"],
+        block_pct=stats["block_pct"],
+        attack_type_counts=stats["attack_type_counts"],
+        session_alert=stats["session_alert"],
+        blocked_last_5=stats["blocked_last_5"],
+    )
+    claude_resp = claude.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=600,
+        messages=[{"role": "user", "content": filled}],
+    )
+    return {"report": claude_resp.content[0].text}
+
+
+@app.post("/session/reset")
+async def session_reset(
+    x_session_id: Optional[str] = Header(None),
+    session_id: Optional[str] = Cookie(None),
+):
+    sid = x_session_id or session_id
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"{PROXY_URL}/session/reset",
+            headers={"X-Session-Id": sid} if sid else {},
+            timeout=5.0,
+        )
+    return {"status": "reset"}

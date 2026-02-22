@@ -22,13 +22,18 @@ class SessionState:
         self.total_processed: int = 0
         self.total_blocked: int = 0
         self.blocked_last_5: deque = deque(maxlen=5)
+        self.attack_type_counts: dict = {}
 
-    def record_final(self, verdict: str) -> None:
+    def record_final(self, verdict: str, attack_type: str | None = None) -> None:
         self.total_processed += 1
         blocked = verdict == "BLOCK"
         if blocked:
             self.total_blocked += 1
         self.blocked_last_5.append(blocked)
+        if attack_type and attack_type != "none":
+            self.attack_type_counts[attack_type] = (
+                self.attack_type_counts.get(attack_type, 0) + 1
+            )
 
     def blocked_recent_count(self) -> int:
         return sum(self.blocked_last_5)
@@ -56,7 +61,7 @@ class PromptFirewall:
         _prompt_path = Path(__file__).parent.parent.parent / "data" / "prompts" / "tier2_v1.txt"
         content = _prompt_path.read_text().format(
             total_processed=session.total_processed,
-            attack_patterns={},
+            attack_patterns=session.attack_type_counts,
             recent_history=[],
             prompt=prompt,
         )
@@ -98,12 +103,14 @@ class PromptFirewall:
         # Steps 2–4: routing
         if t1_label == "OBVIOUS_ATTACK":
             final_verdict = "BLOCK"
+            attack_type = "obvious_attack"
             result = {"action": "block", "tier": 1, "t1_label": t1_label}
 
         elif t1_label == "SAFE":
             if session.session_alert:
                 analysis = self.tier2_analyse(prompt, session)
                 final_verdict = analysis["verdict"]
+                attack_type = analysis.get("attack_type")
                 result = {
                     "action": final_verdict.lower(),
                     "tier": 2,
@@ -113,11 +120,13 @@ class PromptFirewall:
                 }
             else:
                 final_verdict = "ALLOW"
+                attack_type = None
                 result = {"action": "allow", "tier": 1, "t1_label": t1_label}
 
         else:  # SUSPICIOUS
             analysis = self.tier2_analyse(prompt, session)
             final_verdict = analysis["verdict"]
+            attack_type = analysis.get("attack_type")
             result = {
                 "action": final_verdict.lower(),
                 "tier": 2,
@@ -126,5 +135,5 @@ class PromptFirewall:
             }
 
         # Step 5: record final verdict exactly once
-        session.record_final(final_verdict)
+        session.record_final(final_verdict, attack_type)
         return result
