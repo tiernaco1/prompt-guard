@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import DemoApp from './demo-site/DemoApp'
 import Widget from './widget/Widget'
-import { checkPrompt } from './services/api'
+import { sendChat } from './services/api'
 
 function App() {
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
@@ -11,7 +11,7 @@ function App() {
 
   const handlePromptCheck = async (prompt) => {
     try {
-      const result = await checkPrompt(prompt);
+      const result = await sendChat(prompt);
       
       // Normalize action for widget feed
       let normalizedAction = result.action.toUpperCase();
