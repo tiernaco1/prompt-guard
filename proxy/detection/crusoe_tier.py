@@ -26,7 +26,7 @@ class SessionState:
 
     def record_final(self, verdict: str, attack_type: str | None = None) -> None:
         self.total_processed += 1
-        blocked = verdict == "BLOCK"
+        blocked = verdict in ("BLOCK", "SANITISE")
         if blocked:
             self.total_blocked += 1
         self.blocked_last_5.append(blocked)

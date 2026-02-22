@@ -15,10 +15,20 @@ function App() {
     setLatestAnalysis(null);
   };
 
+  const ATTACK_TYPE_DISPLAY = {
+    'direct_jailbreak':       'Direct Jailbreak',
+    'indirect_injection':     'Indirect Injection',
+    'role_hijacking':         'Role Hijacking',
+    'payload_smuggling':      'Payload Smuggling',
+    'context_manipulation':   'Context Manipulation',
+    'information_extraction': 'Info Extraction',
+    'obvious_attack':         'Obvious Attack',
+  };
+
   const handlePromptCheck = async (prompt) => {
     try {
       const result = await sendChat(prompt);
-      
+
       // Normalize action for widget feed
       let normalizedAction = result.action.toUpperCase();
       if (normalizedAction === 'BLOCK') normalizedAction = 'BLOCKED';
@@ -34,12 +44,17 @@ function App() {
         t1Label: result.t1_label,
         escalationReason: result.escalation_reason ?? null,
         ...(result.analysis && {
-          attackType: result.analysis.attack_type,
+          attackType: ATTACK_TYPE_DISPLAY[result.analysis.attack_type] || result.analysis.attack_type,
           severity: result.analysis.severity,
           detail: result.analysis.explanation,
           confidence: result.analysis.confidence,
           sanitisedVersion: result.analysis.sanitised_version,
-        })
+        }),
+        // Tier 1 OBVIOUS_ATTACK has no deep analysis — set minimal metadata for charts
+        ...(!result.analysis && normalizedAction === 'BLOCKED' && {
+          attackType: 'Obvious Attack',
+          severity: 'critical',
+        }),
       };
 
       setLatestAnalysis(entry);

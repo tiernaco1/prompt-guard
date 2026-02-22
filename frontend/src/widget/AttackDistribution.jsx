@@ -5,6 +5,7 @@ const ATTACK_COLORS = {
   "Indirect Injection":   "hsl(25, 90%, 55%)",
   "Payload Smuggling":    "hsl(270, 60%, 60%)",
   "Context Manipulation": "hsl(195, 80%, 50%)",
+  "Obvious Attack":       "hsl(0, 90%, 45%)",
 };
 
 const AttackDistribution = ({ entries = [] }) => {
