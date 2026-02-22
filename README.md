@@ -20,6 +20,28 @@ User Input
 └──────────────────────────────┘
 ```
 
+```mermaid
+flowchart TD
+  U[User prompt] --> T1[Tier 1 triage: Qwen3 on Crusoe]
+  T1 --> L{Tier 1 label}
+
+  L -->|OBVIOUS_ATTACK| B[Block now]
+  L -->|SUSPICIOUS| E[Escalate to Tier 2]
+  L -->|SAFE| R{Session alert}
+
+  S[Session state: last 5 verdicts] --> R
+  R -->|no| A[Allow now]
+  R -->|yes| E
+
+  E --> T2[Tier 2 analysis: Claude Haiku]
+  T2 --> J[Return JSON verdict]
+
+  J --> V[Verdict: BLOCK or SANITISE or ALLOW]
+  J --> T[Attack type: 6 categories]
+  J --> SC[Severity and confidence]
+  J --> SV[Sanitised version if needed]
+```
+
 ### Business Flow
 ```mermaid
 sequenceDiagram
