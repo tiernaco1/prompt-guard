@@ -20,6 +20,34 @@ User Input
 └──────────────────────────────┘
 ```
 
+### Business Flow
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant A as App (UI)
+  participant API as Backend API
+  participant PF as PromptGuard Middleware
+  participant L as LLM Provider
+
+  U->>A: Enter message / action
+  A->>API: POST /chat (user_input, context)
+  API->>PF: validate(user_input, recent_history, policy)
+  alt SAFE / ALLOW
+    PF->>L: call LLM(prompt)
+    L->>PF: completion
+    PF->>API: allow(response)
+  else SUSPICIOUS / SANITISE
+    PF->>L: call LLM(sanitised_prompt)
+    L->>PF: completion
+    PF->>API: allow(response + audit metadata)
+  else OBVIOUS_ATTACK / BLOCK
+    PF->>API: block(reason, attack_type)
+  end
+  API->>A: response (or blocked message)
+  A->>U: display result
+```
+
 **6-category attack taxonomy:** Direct Jailbreak, Indirect Injection, Role Hijacking, Payload Smuggling, Context Manipulation, Information Extraction.
 
 ## Quick Start (Docker — recommended)
