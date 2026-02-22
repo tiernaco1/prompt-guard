@@ -4,22 +4,6 @@
 
 ## Architecture
 
-```
-User Input
-    │
-    ▼
-┌──────────────────────────────┐
-│  TIER 1: Crusoe / Qwen3-235B │  <500ms — classifies every prompt
-│  SAFE / SUSPICIOUS / ATTACK  │
-└──────────┬───────────────────┘
-           │ suspicious / obvious attack
-           ▼
-┌──────────────────────────────┐
-│  TIER 2: Claude Haiku        │  deep analysis — JSON verdict
-│  BLOCK / SANITISE / ALLOW    │  attack_type, confidence, reason
-└──────────────────────────────┘
-```
-
 ```mermaid
 flowchart TD
   U[User prompt] --> T1[Tier 1 triage: Qwen3 on Crusoe]
